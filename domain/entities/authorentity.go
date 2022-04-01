@@ -8,9 +8,9 @@ import (
 
 type Author struct {
 	gorm.Model
-	ID   uint   `gorm:"primaryKey"`
-	Name string `gorm:"unique"`
-	Book []Book
+	ID   uint   `json:"id" gorm:"primaryKey"`
+	Name string `json:"name" gorm:"unique"`
+	Book []Book `json:"book,omitempty"`
 }
 
 //TableName() returns the table header of author

@@ -17,29 +17,29 @@ type App struct {
 	bookRepo   *repos.BookRepository
 }
 
-type Author struct {
-	ID        uint     `json:"id"`
-	Name      string   `json:"name"`
-	CreatedAt string   `json:"createdAt"`
-	DeletedAt string   `json:"deletedAt"`
-	UpdatedAt string   `json:"updatedAt"`
-	BooksName []string `json:"booksName"`
-}
+// type Author struct {
+// 	ID        uint     `json:"id"`
+// 	Name      string   `json:"name"`
+// 	CreatedAt string   `json:"createdAt"`
+// 	DeletedAt string   `json:"deletedAt"`
+// 	UpdatedAt string   `json:"updatedAt"`
+// 	BooksName []string `json:"booksName"`
+// }
 
-type Book struct {
-	ID                uint   `json:"id"`
-	Name              string `json:"name"`
-	NumOfPages        int    `json:"numOfPages"`
-	NumOfBooksInStock int    `json:"numOfBooksInStock"`
-	Price             int    `json:"price"`
-	StockCode         string `json:"stockCode"`
-	ISBN              string `json:"isbn"`
-	CreatedAt         string `json:"createdAt"`
-	DeletedAt         string `json:"deletedAt"`
-	UpdatedAt         string `json:"updatedAt"`
-	AuthorID          uint   `json:"authorID"`
-	AuthorName        string `json:"authorName"`
-}
+// type Book struct {
+// 	ID                uint   `json:"id"`
+// 	Name              string `json:"name"`
+// 	NumOfPages        int    `json:"numOfPages"`
+// 	NumOfBooksInStock int    `json:"numOfBooksInStock"`
+// 	Price             int    `json:"price"`
+// 	StockCode         string `json:"stockCode"`
+// 	ISBN              string `json:"isbn"`
+// 	CreatedAt         string `json:"createdAt"`
+// 	DeletedAt         string `json:"deletedAt"`
+// 	UpdatedAt         string `json:"updatedAt"`
+// 	AuthorID          uint   `json:"authorID"`
+// 	AuthorName        string `json:"authorName"`
+// }
 
 func (a *App) InitializeDBAndRepos(bookList reading_csv.BookList) error {
 	//Set environment variables
@@ -90,7 +90,9 @@ func (a *App) InitializeRouter() {
 	p.HandleFunc("/id/{id}", a.UpdateBook).Methods(http.MethodPatch)
 	p.HandleFunc("/id/{id}", a.DeleteBookByID).Methods(http.MethodDelete)
 	p.HandleFunc("/name/{name}", a.DeleteBookByName).Methods(http.MethodDelete)
-	//p.HandleFunc("/maxPrice", a.MostExpensiveBook).Methods(http.MethodGet)
+	p.HandleFunc("/maxprice", a.MostExpensiveBook).Methods(http.MethodGet)
+	p.HandleFunc("/price/", a.PriceInRangeInIncreasingOrder).Methods(http.MethodGet).Queries("lower", "{lower}", "upper", "{upper}")
+	p.HandleFunc("/buy/", a.buyBook).Methods(http.MethodPatch).Queries("id", "{id}", "quantity", "{quantity}")
 	//Creating a server URL
 	log.Fatal(http.ListenAndServe(":8080", a.Router))
 }

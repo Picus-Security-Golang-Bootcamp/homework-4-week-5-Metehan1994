@@ -87,7 +87,7 @@ func (b *BookRepository) DeleteByName(name string) (*entities.Book, error) {
 	} else if book.Name != "" && book.DeletedAt.Valid {
 		return nil, errors.New("it has been already deleted")
 	} else {
-		return nil, errors.New("invalid author name, no deletion")
+		return nil, errors.New("invalid book name, no deletion")
 	}
 }
 
@@ -110,61 +110,53 @@ func (b *BookRepository) DeleteById(id int) error {
 }
 
 //Buy creates a purchase for a book with its ID in a given quantity
-func (b *BookRepository) Buy(quantity, id int) error {
+func (b *BookRepository) Buy(quantity, id int) (*entities.Book, error) {
 	var book entities.Book
 	result := b.db.First(&book, id)
 	if result.Error != nil {
-		return result.Error
-	} else if book.NumOfBooksInStock < quantity {
-		return fmt.Errorf("not Enough Book. Books: %d", book.NumOfBooksInStock)
-	} else {
-		fmt.Println("It is successfully bought.")
+		return nil, result.Error
+	} else if book.NumOfBooksInStock < quantity && book.Name != "" {
+		return nil, fmt.Errorf("not Enough Book. NumofBooks: %d", book.NumOfBooksInStock)
+	} else if book.Name == "" {
+		return nil, fmt.Errorf("invalid ID")
 	}
 
 	result = b.db.Model(&book).Where("id = ? AND num_of_books_in_stock >= ?", id, quantity).
 		Update("num_of_books_in_stock", gorm.Expr("num_of_books_in_stock - ?", quantity))
 	if result.Error != nil {
-		return result.Error
+		return nil, result.Error
 	}
 
-	return nil
+	return &book, nil
 }
 
 //MaxPrice finds the most expensive book
-func (b *BookRepository) MaxPrice() error {
+func (b *BookRepository) MaxPrice() ([]entities.Book, error) {
 	var maxPrice int
 	var book entities.Book
 	err := b.db.Model(&book).Select("max(price)").Row().Scan(&maxPrice)
 	if err != nil {
-		fmt.Println("It could not be found.")
-		return err
+		return nil, errors.New("it could not be found")
 	}
 
 	var books []entities.Book
 	result := b.db.Where("price = ?", maxPrice).Find(&books)
 	if result.Error != nil {
-		return result.Error
-	}
-	for _, b := range books {
-		fmt.Printf("Most expensive book is %s with %d TL.\n", b.Name, maxPrice)
+		return nil, result.Error
 	}
 
-	return nil
+	return books, nil
 }
 
 //PriceBetweenFromLowerToUpper lists the books in a price range
-func (b *BookRepository) PriceBetweenFromLowerToUpper(lower, upper int) error {
+func (b *BookRepository) PriceBetweenFromLowerToUpper(lower, upper int) ([]entities.Book, error) {
 	var books []entities.Book
 
 	result := b.db.Where("price > ? AND price < ?", lower, upper).Order("price").Find(&books)
 	if result.Error != nil {
-		return result.Error
+		return nil, result.Error
 	}
-	for i, book := range books {
-		fmt.Printf("Book %d: %s with %d TL\n", i+1, book.Name, book.Price)
-	}
-
-	return nil
+	return books, nil
 }
 
 //GetBooksWithBookInformation gives output of books with their author info

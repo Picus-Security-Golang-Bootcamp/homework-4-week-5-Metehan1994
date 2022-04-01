@@ -8,14 +8,14 @@ import (
 
 type Book struct {
 	gorm.Model
-	Name              string
-	NumOfPages        int
-	NumOfBooksInStock int
-	Price             int
-	StockCode         string
-	ISBN              string
-	AuthorID          uint
-	Author            Author `gorm:"foreignKey:AuthorID;references:ID"`
+	Name              string  `json:"name"`
+	NumOfPages        int     `json:"numOfPages"`
+	NumOfBooksInStock int     `json:"numOfBooksInStock"`
+	Price             int     `json:"price"`
+	StockCode         string  `json:"stockCode"`
+	ISBN              string  `json:"isbn"`
+	AuthorID          uint    `json:"authorid"`
+	Author            *Author `json:"author,omitempty" gorm:"foreignKey:AuthorID;references:ID"`
 }
 
 //TableName() returns the table header of book
