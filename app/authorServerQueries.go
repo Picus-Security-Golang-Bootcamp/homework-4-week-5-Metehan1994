@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+//GetAuthors list all authors with their books and info together
 func (a *App) GetAuthors(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	authors, err := a.authorRepo.GetAuthorsWithBookInformation()
@@ -23,6 +24,7 @@ func (a *App) GetAuthors(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//GetByAuthorID gets an author from the database with its ID if it is available
 func (a *App) GetByAuthorID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
@@ -38,6 +40,7 @@ func (a *App) GetByAuthorID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//GetAuthorByWord lists the authors for the given word included in the their names
 func (a *App) GetAuthorByWord(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
@@ -53,6 +56,7 @@ func (a *App) GetAuthorByWord(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//CreateAuthor creates an author
 func (a *App) CreateAuthor(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var author entities.Author
@@ -70,6 +74,7 @@ func (a *App) CreateAuthor(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//UpdateAuthor updates author info with patch method
 func (a *App) UpdateAuthor(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
@@ -94,6 +99,7 @@ func (a *App) UpdateAuthor(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//DeleteAuthorByID implements soft delete to an author for a given ID
 func (a *App) DeleteAuthorByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
@@ -110,6 +116,7 @@ func (a *App) DeleteAuthorByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//DeleteAuthorByName implements soft delete to an author for a given complete author name
 func (a *App) DeleteAuthorByName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)

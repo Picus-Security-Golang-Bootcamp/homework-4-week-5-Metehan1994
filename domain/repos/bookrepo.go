@@ -61,6 +61,7 @@ func (b *BookRepository) Create(book entities.Book) (*entities.Book, error) {
 	return &book, nil
 }
 
+//Update updates the info for the book attributes
 func (b *BookRepository) Update(book entities.Book) error {
 	result := b.db.Save(&book)
 

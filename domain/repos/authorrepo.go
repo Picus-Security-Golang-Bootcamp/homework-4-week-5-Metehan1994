@@ -60,6 +60,7 @@ func (a *AuthorRepository) Create(author entities.Author) (*entities.Author, err
 	return &author, nil
 }
 
+//Update updates the info for the author attributes
 func (a *AuthorRepository) Update(author entities.Author) error {
 	result := a.db.Save(author)
 

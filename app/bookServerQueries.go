@@ -10,6 +10,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
+//GetBooks list all books with their authors and info together
 func (a *App) GetBooks(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	books, err := a.bookRepo.GetBooksWithAuthorInformation()
@@ -23,6 +24,7 @@ func (a *App) GetBooks(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//GetByBookID gets a book from the database with its ID if it is available
 func (a *App) GetByBookID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
@@ -38,6 +40,7 @@ func (a *App) GetByBookID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//GetByBookByWord lists the books for the given word included in the their names
 func (a *App) GetBookByWord(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
@@ -54,6 +57,7 @@ func (a *App) GetBookByWord(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//UpdateAuthor updates book info with patch method
 func (a *App) UpdateBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
@@ -79,6 +83,7 @@ func (a *App) UpdateBook(w http.ResponseWriter, r *http.Request) {
 
 }
 
+//CreateBook creates a book
 func (a *App) CreateBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var book entities.Book
@@ -96,6 +101,7 @@ func (a *App) CreateBook(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//DeleteBookByID implements soft delete to a book for a given ID
 func (a *App) DeleteBookByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
@@ -112,6 +118,7 @@ func (a *App) DeleteBookByID(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//DeleteAuthorByName implements soft delete to a book for a given complete book name
 func (a *App) DeleteBookByName(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
@@ -127,6 +134,7 @@ func (a *App) DeleteBookByName(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//MostExpensiveBook searches for most expensive book and declare it
 func (a *App) MostExpensiveBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	books, err := a.bookRepo.MaxPrice()
@@ -144,6 +152,7 @@ func (a *App) MostExpensiveBook(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+//PriceInRangeInIncreasingOrder list the books found in a range of prices from lowest to greatest
 func (a *App) PriceInRangeInIncreasingOrder(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
@@ -164,6 +173,7 @@ func (a *App) PriceInRangeInIncreasingOrder(w http.ResponseWriter, r *http.Reque
 	}
 }
 
+//BuyBook creates a purchase for a book with its ID in a given quantity
 func (a *App) BuyBook(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
