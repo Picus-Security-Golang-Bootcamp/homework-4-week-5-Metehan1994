@@ -17,30 +17,6 @@ type App struct {
 	bookRepo   *repos.BookRepository
 }
 
-// type Author struct {
-// 	ID        uint     `json:"id"`
-// 	Name      string   `json:"name"`
-// 	CreatedAt string   `json:"createdAt"`
-// 	DeletedAt string   `json:"deletedAt"`
-// 	UpdatedAt string   `json:"updatedAt"`
-// 	BooksName []string `json:"booksName"`
-// }
-
-// type Book struct {
-// 	ID                uint   `json:"id"`
-// 	Name              string `json:"name"`
-// 	NumOfPages        int    `json:"numOfPages"`
-// 	NumOfBooksInStock int    `json:"numOfBooksInStock"`
-// 	Price             int    `json:"price"`
-// 	StockCode         string `json:"stockCode"`
-// 	ISBN              string `json:"isbn"`
-// 	CreatedAt         string `json:"createdAt"`
-// 	DeletedAt         string `json:"deletedAt"`
-// 	UpdatedAt         string `json:"updatedAt"`
-// 	AuthorID          uint   `json:"authorID"`
-// 	AuthorName        string `json:"authorName"`
-// }
-
 func (a *App) InitializeDBAndRepos(bookList reading_csv.BookList) error {
 	//Set environment variables
 	err := godotenv.Load()
@@ -72,9 +48,9 @@ func (a *App) InitializeDBAndRepos(bookList reading_csv.BookList) error {
 func (a *App) InitializeRouter() {
 	//Creating router with prefixes
 	a.Router = mux.NewRouter()
-	s := a.Router.PathPrefix("/authors").Subrouter()
-	p := a.Router.PathPrefix("/books").Subrouter()
+
 	//Providing endpoints to Author methods
+	s := a.Router.PathPrefix("/authors").Subrouter()
 	s.HandleFunc("/", a.GetAuthors).Methods(http.MethodGet)
 	s.HandleFunc("/id/{id}", a.GetByAuthorID).Methods(http.MethodGet)
 	s.HandleFunc("/name/{name}", a.GetAuthorByWord).Methods(http.MethodGet)
@@ -82,7 +58,9 @@ func (a *App) InitializeRouter() {
 	s.HandleFunc("/id/{id}", a.UpdateAuthor).Methods(http.MethodPatch)
 	s.HandleFunc("/id/{id}", a.DeleteAuthorByID).Methods(http.MethodDelete)
 	s.HandleFunc("/name/{name}", a.DeleteAuthorByName).Methods(http.MethodDelete)
+
 	//Providing endpoints to Book methods
+	p := a.Router.PathPrefix("/books").Subrouter()
 	p.HandleFunc("/", a.GetBooks).Methods(http.MethodGet)
 	p.HandleFunc("/id/{id}", a.GetByBookID).Methods(http.MethodGet)
 	p.HandleFunc("/name/{name}", a.GetBookByWord).Methods(http.MethodGet)
@@ -92,7 +70,8 @@ func (a *App) InitializeRouter() {
 	p.HandleFunc("/name/{name}", a.DeleteBookByName).Methods(http.MethodDelete)
 	p.HandleFunc("/maxprice", a.MostExpensiveBook).Methods(http.MethodGet)
 	p.HandleFunc("/price/", a.PriceInRangeInIncreasingOrder).Methods(http.MethodGet).Queries("lower", "{lower}", "upper", "{upper}")
-	p.HandleFunc("/buy/", a.buyBook).Methods(http.MethodPatch).Queries("id", "{id}", "quantity", "{quantity}")
+	p.HandleFunc("/buy/", a.BuyBook).Methods(http.MethodPatch).Queries("id", "{id}", "quantity", "{quantity}")
+
 	//Creating a server URL
 	log.Fatal(http.ListenAndServe(":8080", a.Router))
 }

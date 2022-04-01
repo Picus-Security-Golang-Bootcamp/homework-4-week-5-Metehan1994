@@ -12,62 +12,102 @@ import (
 
 func (a *App) GetAuthors(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	authors, _ := a.authorRepo.GetAuthorsWithBookInformation()
-	//authorApp := Author{}
-	// for _, author := range authors {
-	// 	authorApp = CreateProperFormattedAuthor(author, authorApp)
-	// 	json.NewEncoder(w).Encode(authorApp)
-	// }
-	json.NewEncoder(w).Encode(authors)
+	authors, err := a.authorRepo.GetAuthorsWithBookInformation()
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(err.Error()))
+	} else {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(authors)
+	}
 }
 
 func (a *App) GetByAuthorID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
-	author, _ := a.authorRepo.GetByID(id)
-	// authorApp := Author{}
-	// authorApp = CreateProperFormattedAuthor(*author, authorApp)
-	json.NewEncoder(w).Encode(author)
+	author, err := a.authorRepo.GetByID(id)
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(err.Error()))
+	} else {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(author)
+	}
 }
 
 func (a *App) GetAuthorByWord(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
 	authors := a.authorRepo.FindByWord(vars["name"])
-	// authorApp := Author{}
-	// for _, author := range authors {
-	// 	authorApp = CreateProperFormattedAuthor(author, authorApp)
-	//	json.NewEncoder(w).Encode(authorApp)
-	// }
-	json.NewEncoder(w).Encode(authors)
+	if len(authors) != 0 {
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(authors)
+	} else {
+		s := "No authors found.\n"
+		fmt.Print(s)
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte(s))
+	}
 }
 
 func (a *App) CreateAuthor(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var author entities.Author
 	json.NewDecoder(r.Body).Decode(&author)
-	a.authorRepo.Create(author)
-	json.NewEncoder(w).Encode(author)
+	_, err := a.authorRepo.Create(author)
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+	} else {
+		s := "Author is created. Author Name: " + author.Name + "\n"
+		w.Write([]byte(s))
+		w.WriteHeader(http.StatusCreated)
+		json.NewEncoder(w).Encode(author)
+	}
 }
 
 func (a *App) UpdateAuthor(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
-	author, _ := a.authorRepo.GetByID(id)
-	json.NewDecoder(r.Body).Decode(&author)
-	a.authorRepo.Update(*author)
-	json.NewEncoder(w).Encode(author)
+	author, err := a.authorRepo.GetByID(id)
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+	} else {
+		err := json.NewDecoder(r.Body).Decode(&author)
+		a.authorRepo.Update(*author)
+		if err != nil {
+			fmt.Print(err)
+			w.Write([]byte(err.Error()))
+		} else {
+			s := "Author is updated.\n"
+			w.Write([]byte(s))
+			w.WriteHeader(http.StatusCreated)
+			json.NewEncoder(w).Encode(author)
+		}
+	}
 }
 
 func (a *App) DeleteAuthorByID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
-	a.authorRepo.DeleteById(id)
-	var author entities.Author
-	json.NewEncoder(w).Encode(author)
+	err := a.authorRepo.DeleteById(id)
+	if err != nil {
+		fmt.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
+	} else {
+		w.WriteHeader(http.StatusAccepted)
+		s := fmt.Sprintf("Valid ID, deleted: %d", id)
+		w.Write([]byte(s))
+	}
 }
 
 func (a *App) DeleteAuthorByName(w http.ResponseWriter, r *http.Request) {
@@ -76,21 +116,11 @@ func (a *App) DeleteAuthorByName(w http.ResponseWriter, r *http.Request) {
 	author, err := a.authorRepo.DeleteByName(vars["name"])
 	if err != nil {
 		fmt.Println(err)
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte(err.Error()))
 	} else {
-		fmt.Println("Valid author name, deleted:", author.Name)
+		s := "Valid author name, deleted: " + author.Name
+		w.WriteHeader(http.StatusAccepted)
+		w.Write([]byte(s))
 	}
-	json.NewEncoder(w).Encode(author)
 }
-
-// func CreateProperFormattedAuthor(a entities.Author, authorApp Author) Author {
-// 	authorApp.Name = a.Name
-// 	authorApp.ID = a.ID
-// 	authorApp.CreatedAt = a.CreatedAt.String()
-// 	authorApp.UpdatedAt = a.UpdatedAt.String()
-// 	authorApp.DeletedAt = a.DeletedAt.Time.String()
-// 	authorApp.BooksName = make([]string, 0)
-// 	for _, book := range a.Book {
-// 		authorApp.BooksName = append(authorApp.BooksName, book.Name)
-// 	}
-// 	return authorApp
-// }

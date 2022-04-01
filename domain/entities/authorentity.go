@@ -8,7 +8,7 @@ import (
 
 type Author struct {
 	gorm.Model
-	ID   uint   `json:"id" gorm:"primaryKey"`
+	ID   uint   `json:"ID" gorm:"primaryKey"`
 	Name string `json:"name" gorm:"unique"`
 	Book []Book `json:"book,omitempty"`
 }
