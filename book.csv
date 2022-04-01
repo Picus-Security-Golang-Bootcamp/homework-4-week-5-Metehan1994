@@ -1,0 +1,11 @@
+Book_Name,Num_of_Pages,Num_of_Books_in_Stocks,Price,Stock_Code,ISBN,Author_ID,Author_Name
+Crime and Punishment,705,30,30,BOOK1111,9780393055344,1,Fyodor Dostoyevski
+War and Peace,1225,10,50,BOOK1112,9780060798871,2,Lev Tolstoy
+Anna Karenina,864,3,40,BOOK1113,9780670894789,2,Lev Tolstoy
+A Tale of Two Cities,500,15,25,BOOK1114,9780721407104,3,Charles Dickens
+Meditations,304,40,20,BOOK1115,9780915145782,4,Marcus Aurelius
+Robinson Crusoe,210,50,18,BOOK1116,9780393044072,5,Daniel Defoe
+The Gambler,191,13,17,BOOK1117,9788426120113,1,Fyodor Dostoyevski
+Fathers and Sons,320,34,21,BOOK1118,9788423919307,6,Ivan Turgenyev
+Don Quixote,289,12,20,BOOK1119,9788497403573,7,Miguel de Cervantes
+Romeo and Juliet,133,15,15,BOOK1120,9780003252453,8,William Shakespeare
