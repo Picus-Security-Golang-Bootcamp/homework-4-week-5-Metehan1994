@@ -58,13 +58,18 @@ func (a *App) InitializeDBAndRepos(bookList reading_csv.BookList) error {
 }
 
 func (a *App) InitializeRouter() {
+	//Creating router
 	a.Router = mux.NewRouter()
 	s := a.Router.PathPrefix("/authors").Subrouter()
+	//Providing endpoints to methods
 	s.HandleFunc("/", a.GetAuthors).Methods(http.MethodGet)
 	s.HandleFunc("/id/{id}", a.GetByAuthorID).Methods(http.MethodGet)
 	s.HandleFunc("/name/{name}", a.GetByAuthorName).Methods(http.MethodGet)
 	s.HandleFunc("/", a.CreateAuthor).Methods(http.MethodPost)
-	//s.HandleFunc("/id/{id}", a.UpdateAuthor).Methods(http.MethodPut)
+	s.HandleFunc("/id/{id}", a.UpdateAuthor).Methods(http.MethodPut)
+	s.HandleFunc("/id/{id}", a.DeleteAuthorByID).Methods(http.MethodDelete)
+	s.HandleFunc("/name/{name}", a.DeleteAuthorByName).Methods(http.MethodDelete)
+	//Creating a server URL
 	log.Fatal(http.ListenAndServe(":8080", s))
 }
 
@@ -114,6 +119,23 @@ func (a *App) UpdateAuthor(w http.ResponseWriter, r *http.Request) {
 	author, _ := a.authorRepo.GetByID(id)
 	json.NewDecoder(r.Body).Decode(&author)
 	a.authorRepo.Update(*author)
+	json.NewEncoder(w).Encode(author)
+}
+
+func (a *App) DeleteAuthorByID(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
+	id, _ := strconv.Atoi(vars["id"])
+	a.authorRepo.DeleteById(id)
+	var author entities.Author
+	json.NewEncoder(w).Encode(author)
+}
+
+func (a *App) DeleteAuthorByName(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
+	a.authorRepo.DeleteByName(vars["name"])
+	var author entities.Author
 	json.NewEncoder(w).Encode(author)
 }
 
