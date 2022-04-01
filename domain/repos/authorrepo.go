@@ -71,25 +71,23 @@ func (a *AuthorRepository) Update(author entities.Author) error {
 }
 
 //DeleteByName deletes the author with the given full name
-func (a *AuthorRepository) DeleteByName(name string) error {
+func (a *AuthorRepository) DeleteByName(name string) (*entities.Author, error) {
 	var author entities.Author
 	result := a.db.Unscoped().Where("name = ?", name).Find(&author)
 	if result.Error != nil {
-		return result.Error
+		return nil, result.Error
 	} else if author.Name != "" && !author.DeletedAt.Valid {
-		fmt.Println("Valid author name, deleted:", name)
+		result = a.db.Where("name = ?", name).Delete(&entities.Author{})
+		if result.Error != nil {
+			return nil, result.Error
+		} else {
+			return &author, nil
+		}
 	} else if author.Name != "" && author.DeletedAt.Valid {
-		fmt.Println("It has been already deleted.")
+		return nil, errors.New("it has been already deleted")
 	} else {
-		fmt.Println("Invalid author name, no deletion.")
+		return nil, errors.New("invalid author name, no deletion")
 	}
-	result = a.db.Where("name = ?", name).Delete(&entities.Author{})
-
-	if result.Error != nil {
-		return result.Error
-	}
-
-	return nil
 }
 
 //DeleteByID applies a soft delete to an author with given ID

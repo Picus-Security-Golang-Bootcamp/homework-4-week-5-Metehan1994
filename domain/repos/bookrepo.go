@@ -29,7 +29,7 @@ func (b *BookRepository) List() []entities.Book {
 //GetByID provides the book info for a given ID
 func (b *BookRepository) GetByID(ID int) (*entities.Book, error) {
 	var book entities.Book
-	result := b.db.First(&book, ID)
+	result := b.db.Preload("Author").First(&book, ID)
 	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 		return nil, result.Error
 	}
@@ -37,13 +37,11 @@ func (b *BookRepository) GetByID(ID int) (*entities.Book, error) {
 }
 
 //FindByWord lists the books with the given word case-insensitively
-func (b *BookRepository) FindByWord(name string) {
+func (b *BookRepository) FindByWord(name string) []entities.Book {
 	var books []entities.Book
 	b.db.Where("name ILIKE ? ", "%"+name+"%").Find(&books)
 
-	for _, author := range books {
-		fmt.Println(author.ToString())
-	}
+	return books
 }
 
 //FindByName provides the book with the input of full name
@@ -55,34 +53,42 @@ func (b *BookRepository) FindByName(name string) {
 }
 
 //Create creates a new book
-func (b *BookRepository) Create(book entities.Book) error {
+func (b *BookRepository) Create(book entities.Book) (*entities.Book, error) {
 	result := b.db.Where("name = ?", book.Name).FirstOrCreate(&book)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &book, nil
+}
+
+func (b *BookRepository) Update(book entities.Book) error {
+	result := b.db.Save(&book)
+
 	if result.Error != nil {
 		return result.Error
 	}
+
 	return nil
 }
 
 //DeleteByName deletes the book with the given full name
-func (b *BookRepository) DeleteByName(name string) error {
+func (b *BookRepository) DeleteByName(name string) (*entities.Book, error) {
 	var book entities.Book
 	result := b.db.Unscoped().Where("name = ?", name).Find(&book)
 	if result.Error != nil {
-		return result.Error
+		return nil, result.Error
 	} else if book.Name != "" && !book.DeletedAt.Valid {
-		fmt.Println("Valid book name, deleted:", name)
+		result = b.db.Where("name = ?", name).Delete(&entities.Book{})
+		if result.Error != nil {
+			return nil, result.Error
+		} else {
+			return &book, nil
+		}
 	} else if book.Name != "" && book.DeletedAt.Valid {
-		fmt.Println("It has been already deleted.")
+		return nil, errors.New("it has been already deleted")
 	} else {
-		fmt.Println("Invalid book name, not deleted.")
+		return nil, errors.New("invalid author name, no deletion")
 	}
-	result = b.db.Where("name = ?", name).Delete(&entities.Book{})
-
-	if result.Error != nil {
-		return result.Error
-	}
-
-	return nil
 }
 
 //DeleteByID applies a soft delete to a book with given ID
